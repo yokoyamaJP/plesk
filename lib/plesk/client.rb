@@ -32,13 +32,13 @@ module Plesk
       connection.verify_mode = @options[:verify_ssl] == false ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
       result = connection.request(request)
       xml = Nokogiri::XML.parse(result.body)
-      if xml.xpath('/packet/system/status').first&.content == "error"
-        error_code = xml.xpath('/packet/system/errcode').first&.content
-        error_message = xml.xpath('/packet/system/errtext').first&.content
+      if (xml.xpath('/packet/system/status').first.content == "error" rescue nil)
+        (error_code = xml.xpath('/packet/system/errcode').first.content rescue nil)
+        (error_message = xml.xpath('/packet/system/errtext').first.content rescue nil)
         raise RequestError, "#{error_code || "-1"}: #{error_message}"
-      elsif xml.xpath("/packet/#{controller}/#{action}/result/status").first&.content == "error"
-        error_code = xml.xpath("/packet/#{controller}/#{action}/result/errcode").first&.content
-        error_message = xml.xpath("/packet/#{controller}/#{action}/result/errtext").first&.content
+      elsif (xml.xpath("/packet/#{controller}/#{action}/result/status").first.content == "error" rescue nil)
+        (error_code = xml.xpath("/packet/#{controller}/#{action}/result/errcode").first.content rescue nil)
+        (error_message = xml.xpath("/packet/#{controller}/#{action}/result/errtext").first.content rescue nil)
         raise ActionError, "#{error_code || "-1"}: #{error_message}"
       else
         xml.xpath("//result")[0]
@@ -47,4 +47,3 @@ module Plesk
 
   end
 end
-
